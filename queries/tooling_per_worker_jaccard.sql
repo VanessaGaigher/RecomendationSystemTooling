@@ -1,22 +1,22 @@
+--Query to recommendations based on Jaccard similarity: workers
+
 SELECT
-	TOP 20
+	j.RESPONSIBLEID AS ManagersID,
+	ti.ID ToolID,
     ti.NAME AS Tool,
-	(
-   LOG(1 + SUM(tmi.QUANTITY)) * 0.7
-   +
-   LOG(1 + COUNT(DISTINCT tm.DESTINATIONJOBID)) * 0.3
-	) AS PopularityScore
+    SUM(tmi.QUANTITY) AS TotalVolume
     FROM OSUSR_BBQ_TOOLINGLOGISTICSMOVEMENT tm
     JOIN OSUSR_BBQ_TOOLINGLOGISTICSMOVEMENT_TOOLINGITEM tmi 
         ON tm.ID = tmi.MOVEMENTID
     JOIN OSUSR_CEQ_TOOLINGITEM ti 
         ON ti.ID = tmi.TOOLINGITEMID
-    LEFT JOIN OSUSR_8DK_JOB j 
+    JOIN OSUSR_8DK_JOB j 
         ON j.ID = tm.DESTINATIONJOBID AND j.ISDELETED = 0 AND j.JOBSTATUSID IN (3, 4, 5)
     WHERE ti.INTERNALCOMPANYID = 1
         AND ti.ISDELETED = 0
         AND tm.TYPEID IN (3, 5) -- Exit or Transfer
-        AND (tm.DESTINATIONJOBID IS NOT NULL OR tm.DESTINATIONWORKERID IS NOT NULL) -- only real use
+        AND (tm.DESTINATIONJOBID IS NOT NULL) -- only real use
         AND tm.STATUSID = 2
-    GROUP BY ti.NAME
-    ORDER BY PopularityScore DESC;
+		--AND j.JOBTYPEID != 12 -- Centro de Custos
+    GROUP BY j.RESPONSIBLEID, ti.ID, ti.NAME
+	ORDER BY j.RESPONSIBLEID;

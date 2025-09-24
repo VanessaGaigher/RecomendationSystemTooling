@@ -1,11 +1,11 @@
 SELECT
-	TOP 20
     ti.NAME AS Tool,
-	(
-   LOG(1 + SUM(tmi.QUANTITY)) * 0.7
-   +
-   LOG(1 + COUNT(DISTINCT tm.DESTINATIONJOBID)) * 0.3
-	) AS PopularityScore
+    COUNT(DISTINCT tm.DESTINATIONJOBID) AS DistinctWorksites,
+    COUNT(DISTINCT j.RESPONSIBLEID) AS DistinctManagers,
+    SUM(tmi.QUANTITY) AS TotalVolume,
+    -- Combined score: no. of worksites + log(total_volume + 1)
+    COUNT(DISTINCT tm.DESTINATIONJOBID) 
+        + 0.5 * LOG(1 + SUM(tmi.QUANTITY)) AS PopularityScore
     FROM OSUSR_BBQ_TOOLINGLOGISTICSMOVEMENT tm
     JOIN OSUSR_BBQ_TOOLINGLOGISTICSMOVEMENT_TOOLINGITEM tmi 
         ON tm.ID = tmi.MOVEMENTID
@@ -18,5 +18,6 @@ SELECT
         AND tm.TYPEID IN (3, 5) -- Exit or Transfer
         AND (tm.DESTINATIONJOBID IS NOT NULL OR tm.DESTINATIONWORKERID IS NOT NULL) -- only real use
         AND tm.STATUSID = 2
+		--AND j.JOBTYPEID != 12 -- Centro de Custos
     GROUP BY ti.NAME
     ORDER BY PopularityScore DESC;
