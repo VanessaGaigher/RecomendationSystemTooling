@@ -15,6 +15,7 @@ WHERE ti.INTERNALCOMPANYID = 1
     AND ti.ISDELETED = 0
     AND tm.TYPEID IN (3, 5) -- Exit or Transfer
     AND (tm.DESTINATIONJOBID IS NOT NULL) -- only real use
+	AND tmi.CONTAINERID IS NULL
     AND tm.STATUSID = 2
     --AND j.JOBTYPEID != 12 -- Centro de Custos
     GROUP BY tm.ID, ti.ID, TI.NAME
