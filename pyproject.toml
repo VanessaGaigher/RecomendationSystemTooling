@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fuzzywuzzy>=0.18.0",
     "gensim==4.3.2",
     "ipykernel>=6.30.1",
     "mlxtend>=0.23.4",
